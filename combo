@@ -1,0 +1,53 @@
+/*
+ID: miguel.8
+PROG: combo
+LANG: C++
+*/
+#include <iostream>
+#include <fstream>
+#include <string>
+
+using namespace std;
+bool combination[105][105][105];
+
+int main() {
+	ofstream fout ("combo.out");
+    ifstream fin ("combo.in");
+	int m, a, b, c, a1, b1, c1, contador=0;
+	fin>>m;
+	fin>>a>>b>>c;
+	fin>>a1>>b1>>c1;
+	a-=2;
+	b-=2;
+	c-=2;
+	if(a==-1) a=m-1;
+	else if(a==0) a=m;
+	if(b==-1) b=m-1;
+	else if(b==0) b=m;
+	if(c==-1) c=m-1;
+	else if(c==0) c=m;
+	for(int i=0;i<5;i++)
+		for(int j=0;j<5;j++)
+			for(int k=0;k<5;k++)
+				if(combination[(a+i)%(m+1)][(b+i)%(m+1)][(c+i)%(m+1)]==false){
+					combination[(a+i)%(m+1)][(b+i)%(m+1)][(c+i)%(m+1)]=true;
+					contador++;
+				}
+	a1-=2;
+	b1-=2;
+	c1-=2;
+	if(a1==-1) a1=m-1;
+	else if(a1==0) a1=m;
+	if(b1==-1) b1=m-1;
+	else if(b1==0) b1=m;
+	if(c1==-1) c1=m-1;
+	else if(c1==0) c1=m;
+	for(int i=0;i<5;i++)
+		for(int j=0;j<5;j++)
+			for(int k=0;k<5;k++)
+				if(combination[(a1+i)%(m+1)][(b1+i)%(m+1)][(c1+i)%(m+1)]==false){
+					combination[(a1+i)%(m+1)][(b1+i)%(m+1)][(c1+i)%(m+1)]=true;
+					contador++;
+				}	
+	printf("%d\n",contador);
+}
