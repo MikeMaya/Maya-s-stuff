@@ -1,3 +1,4 @@
+
 #include <windows.h>
 #include <stdio.h>
 DWORD WINAPI funcionHilo(LPVOID lpParam);
@@ -17,7 +18,7 @@ int main(){
 
 	//Creacion del hilo
 	manHilo=CreateThread(NULL,0,funcionHilo,&argumentos,0,&idHilo);
-	
+
 	//Espera la finalizacion del hilo
 	WaitForSingleObject(manHilo,INFINITE);
 
@@ -30,8 +31,8 @@ int main(){
 
 DWORD WINAPI funcionHilo(LPVOID lpParam){
 	info *datos=(info *)lpParam;
-	printf("Valores al entrar al Hilo %i %i\n"datos->val_1,datos->val_2);
-	datos->val1*=2;
-	datos->val2*=2;
+	printf("Valores al entrar al Hilo %i %i\n",datos->val_1,datos->val_2);
+	datos->val_1*=2;
+	datos->val_2*=2;
 	return 0;
 }
