@@ -1,0 +1,36 @@
+#include<bits/stdc++.h>
+using namespace std;
+
+struct tipo{
+    long long int a,b,c;
+};
+bool operator <(const tipo a, const tipo b){
+    if(a.a==b.a)
+        if(a.b==b.b)
+            return a.c < b.c;
+        else
+            return a.b< b.b;
+    return a.a < b.a;
+}
+map <tipo,long long int> m;
+int main(){
+    long long int sol;
+    sol=0;
+    string cad;
+    cin>>cad;
+    tipo aux;
+    aux.a=aux.b=aux.c=0;
+    m[aux]=1;
+    for(int i=0;i<cad.size();i++){
+        if(cad[i]=='A') aux.a++;
+        else if(cad[i]=='B') aux.b++;
+        else if(cad[i]=='C') aux.c++;
+        int resta=min(aux.a,min(aux.b,aux.c));
+        aux.a-=resta;
+        aux.b-=resta;
+        aux.c-=resta;
+        sol+=m[aux];
+        m[aux]++;
+    }
+    cout<<sol<<'\n';
+}
