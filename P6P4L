@@ -1,16 +1,18 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
-#define VALOR 1
 
 int main(void){
 	int t1[2];
 	int t2[2];
 	int t3[2];
 	int t4[2];
-	char bufer[10];
+	int bufer[10];
 	int m1[12][12];
 	int m2[12][12];
+	int mr1[12][12];
+	float mf1[12][12];
+	float mf2[12][12];
 	float mfr1[12][12];
 	float mfr2[12][12];
 	int i,j;
@@ -23,33 +25,41 @@ int main(void){
 		for(j=0;j<10;j++)
 			fscanf(fin,"%d",&m2[i][j]);
 	fclose(fin);
+
 	//Se crean las tuberias
-	if(pipe(t1)!=0)	exit(1); 
-	if(pipe(t2)!=0)	exit(1); 
-	if(pipe(t3)!=0)	exit(1); 
-	if(pipe(t4)!=0)	exit(1); 
+	if(pipe(t1)!=0)	exit(0); 
+	if(pipe(t2)!=0)	exit(0); 
+	if(pipe(t3)!=0)	exit(0); 
+	if(pipe(t4)!=0)	exit(0); 
+	/*close(t1[0]);
+	close(t2[0]);
+	close(t2[1]);
+	close(t3[1]);
+	close(t4[1]);*/
 	//Este es el hijo
 	if(fork()==0){
 		//Recibimos las dos matrices que nos esrta mandando el padre
-		for(int i=0;i<10;i++){
+		for(i=0;i<10;i++){
 			read(t1[0],bufer,sizeof(bufer));
-			for(j=0;j<10;j++) m1[i][j]=bufer[j]-'0';
+			for(j=0;j<10;j++) m1[i][j]=bufer[j];
+			
 		}
-		for(int i=0;i<10;i++){
-			read(t1[0],bufer,sizeof(bufer));
-			for(j=0;j<10;j++) m2[i][j]=bufer[j]-'0';
-		}
-		//Se hace la multiplicacion, se guarda en m1
 		for(i=0;i<10;i++)
-			for(j=0;j<10;j++)
+			read(t1[0],bufer,sizeof(bufer));
+			for(j=0;j<10;j++) m2[i][j]=bufer[j];
+		//Se hace la multiplicacion, se guarda en m1
+		for(i=0;i<10;i++){
+			for(j=0;j<10;j++){
 				mr1[i][j]=m1[i][0]*m2[0][j] + m1[i][1]*m2[1][j]  + m1[i][2]*m2[2][j]  
 			+ m1[i][3]*m2[3][j]  + m1[i][4]*m2[4][j]  + m1[i][5]*m2[5][j]  + m1[i][6]*m2[6][j]  
 			+ m1[i][7]*m2[7][j]  + m1[i][8]*m2[8][j]  + m1[i][9]*m2[9][j];
+			}
+		}
 		//Se envia la informacion al padre
 		for(i=0;i<10;i++){
 			for(j=0;j<10;j++)
-				bufer[j]=m1[i][j]+'0';
-			write(t3[1],bufer,strlen(bufer)+1);
+				bufer[j]=mr1[i][j];
+			write(t3[1],bufer,sizeof(bufer));
 		}
 		//Se leen las matrices del nieto
 		FILE *fin = fopen("datos2.in","r");
@@ -63,63 +73,66 @@ int main(void){
 		//Se crea el nieto
 		if(fork()==0){
 			//Leemos las matrices pasadas por la tuberia
-			for(int i=0;i<10;i++){
+			for(i=0;i<10;i++){
 				read(t2[0],bufer,sizeof(bufer));
-				for(j=0;j<10;j++) m1[i][j]=bufer[j]-'0';
+				for(j=0;j<10;j++) m1[i][j]=bufer[j];
 			}
-			for(int i=0;i<10;i++){
+			for(i=0;i<10;i++){
 				read(t2[0],bufer,sizeof(bufer));
-				for(j=0;j<10;j++) m2[i][j]=bufer[j]-'0';
+				for(j=0;j<10;j++) m2[i][j]=bufer[j];
 			}
 			//Se realiza la suma
 			for(i=0;i<10;i++)
 				for(j=0;j<10;j++)
-					m1[i][j]+=m2[i][j]);
+					m1[i][j]+=m2[i][j];
 			//Se la pasamos al abuelo
 			for(i=0;i<10;i++){
 				for(j=0;j<10;j++)
-					bufer[j]=m1[i][j]+'0';
-				write(t4[1],bufer,strlen(bufer)+1);
+					bufer[j]=m1[i][j];
+				write(t4[1],bufer,sizeof(bufer));
 			}
 			//Se termina 
 			exit(0);
 		}
 		//Se mandan las matrices al nieto
 		for(i=0;i<10;i++){
-			for(j=0;j<10;j++)
-				bufer[j]=m1[i][j]+'0';
-			write(t2[1],bufer,strlen(bufer)+1);
+			for(j=0;j<10;j++){
+				bufer[j]=m1[i][j];
+			}
+			write(t2[1],bufer,sizeof(bufer));
 		}
 		for(i=0;i<10;i++){
 			for(j=0;j<10;j++)
-				bufer[j]=m2[i][j]+'0';
-			write(t2[1],bufer,strlen(bufer)+1);
+				bufer[j]=m2[i][j];
+			write(t2[1],bufer,sizeof(bufer));
 		}
 		//Se termina
 		exit(0);
 	}
 	//Escribimos las matrices al hijo
 	for(i=0;i<10;i++){
-		for(j=0;j<10;j++)
-			bufer[j]=m1[i][j]+'0';
-		write(t1[1],bufer,strlen(bufer)+1);
+		for(j=0;j<10;j++){
+			bufer[j]=m1[i][j];
+		}
+		write(t1[1],bufer,sizeof(bufer));
 	}
 	for(i=0;i<10;i++){
-		for(j=0;j<10;j++)
-			bufer[j]=m2[i][j]+'0';
-		write(t1[1],bufer,strlen(bufer)+1);
+		for(j=0;j<10;j++){
+			bufer[j]=m2[i][j];
+		}
+		write(t1[1],bufer,sizeof(bufer));
 	}
 	//Leemos la matriz del hijo
-	for(int i=0;i<10;i++){
+	for(i=0;i<10;i++){
 		read(t3[0],bufer,sizeof(bufer));
-		for(j=0;j<10;j++) m1[i][j]=bufer[j]-'0';
+		for(j=0;j<10;j++) mf1[i][j]=bufer[j]; 
 	}
 	//Leemos la matriz del nieto
-	for(int i=0;i<10;i++){
+	for(i=0;i<10;i++){
 		read(t4[0],bufer,sizeof(bufer));
-		for(j=0;j<10;j++) m1[i][j]=bufer[j]-'0';
+		for(j=0;j<10;j++) mf2[i][j]=bufer[j];
 	}
-	//Se ejecuta la inversa de la matrioz 1 y 2
+	//Obtenemos la inversa
 	for(i=0;i<10;i++){
 		for(j=0;j<10;j++){
 			if(i==j) mfr1[i][j]=mfr2[i][j]=1;
@@ -136,14 +149,11 @@ int main(void){
 			mf2[i][j]/=divi2;
 			mfr2[i][j]/=divi2;
 		}
-		//imprimirM();
 		int k=0;
 		for(k=i+1;k<10;k++){
 			float num=mf1[k][i];
 			float num2=mf2[k][i];
-			//printf("El numero %f\n",num);
 			for(j=i;j<10;j++){
-				//printf("El valor %f\n",(mf1[i][j]*num));
 				mf1[k][j]-=(mf1[i][j]*num);
 				mfr1[k][j]-=(mf1[i][j]*num);
 				mf2[k][j]-=(mf2[i][j]*num2);
@@ -157,7 +167,7 @@ int main(void){
 			mfr2[i][j]-=mf2[i][j];
 		}
 	}
-	//Se guardan las matrices resutlantes
+	//Se guardan la matriz del hijo
 	FILE *fout = fopen("MatrizInversa1", "w");
 	for(i=0;i<10;i++){
 		for(j=0;j<10;j++){
@@ -166,7 +176,8 @@ int main(void){
 		fprintf(fout,"\n");
 	}
 	fclose(fout);
-	FILE *fout = fopen("MatrizInversa2", "w");
+	
+	fout = fopen("MatrizInversa2", "w");
 	for(i=0;i<10;i++){
 		for(j=0;j<10;j++){
 			fprintf(fout,"%.2f ",mfr2[i][j]);
@@ -174,5 +185,6 @@ int main(void){
 		fprintf(fout,"\n");
 	}
 	fclose(fout);
+	exit(0);
 	return 0;
 }
